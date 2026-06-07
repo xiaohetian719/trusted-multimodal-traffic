@@ -1,0 +1,23 @@
+# Trusted Multimodal Traffic AI — Python dependencies
+# Three-stage decoupled architecture (Perception → Topology → Narrative)
+
+# Core
+numpy>=1.24
+opencv-python>=4.8
+torch>=2.0
+ultralytics>=8.0
+requests>=2.28
+scipy>=1.10
+
+# Visualisation
+matplotlib>=3.7
+
+# Utilities
+openpyxl>=3.1
+scikit-image>=0.21
+
+# External (clone separately)
+# Depth-Anything-V2: https://github.com/DepthAnything/Depth-Anything-V2
+
+# Optional: local LLM inference
+# ollama: https://ollama.com

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traffic AI Platform - 交通场景智能分析平台</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">
+    <svg width="32" height="32" viewBox="0 0 32 32"><rect x="2" y="14" width="6" height="6" rx="1" fill="#4ade80"/><rect x="12" y="4" width="6" height="6" rx="1" fill="#60a5fa"/><rect x="24" y="14" width="6" height="6" rx="1" fill="#f87171"/><rect x="12" y="24" width="6" height="6" rx="1" fill="#fbbf24"/></svg>
+    <h1>Traffic AI <span>Platform</span></h1>
+  </div>
+  <div class="header-status" id="headerStatus">
+    <span class="dot"></span> Ready
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Upload Panel -->
+  <section class="panel upload-panel" id="uploadPanel">
+    <div class="panel-header">
+      <h2>📹 上传视频</h2>
+      <p>支持 .avi / .mp4 / .mov 格式，最大 500MB</p>
+    </div>
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <p class="upload-text">拖拽视频到此处，或 <label class="upload-btn" for="fileInput">选择文件</label></p>
+      <input type="file" id="fileInput" accept="video/*" hidden>
+      <p class="upload-hint" id="fileHint"></p>
+    </div>
+    <div class="run-options" id="runOptions" style="display:none">
+      <label>最大处理时长（秒，留空=全部）:</label>
+      <input type="number" id="maxSecs" placeholder="留空处理全部" min="5" step="5" style="width:180px;padding:8px;border-radius:6px;border:1px solid #333;background:#1a1a2e;color:#fff;">
+      <button class="btn btn-run" id="btnRun" onclick="startPipeline()">▶ 开始分析</button>
+    </div>
+  </section>
+
+  <!-- Progress Panel -->
+  <section class="panel progress-panel" id="progressPanel" style="display:none">
+    <div class="panel-header">
+      <h2>⏳ 处理中...</h2>
+      <p id="progressMsg">初始化</p>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <p class="progress-pct" id="progressPct">0%</p>
+    <p class="progress-elapsed" id="progressElapsed"></p>
+  </section>
+
+  <!-- Results Dashboard -->
+  <section class="panel results-panel" id="resultsPanel" style="display:none">
+    <div class="panel-header">
+      <h2>📊 分析结果</h2>
+      <div class="result-stats" id="resultStats"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="video">🎬 标注视频</button>
+      <button class="tab" data-tab="report">📝 交通报告</button>
+      <button class="tab" data-tab="eval">📈 评价报告</button>
+      <button class="tab" data-tab="charts">📊 可视化图表</button>
+    </div>
+
+    <!-- Tab: Video -->
+    <div class="tab-content active" id="tab-video">
+      <div class="video-container">
+        <video id="resultVideo" controls style="width:100%;max-height:60vh;border-radius:8px;background:#000;" onerror="onVideoError()">
+          您的浏览器不支持视频播放
+        </video>
+        <div id="videoFallback" style="display:none;text-align:center;padding:40px;background:rgba(0,0,0,0.3);border-radius:8px;">
+          <div style="font-size:3rem;margin-bottom:16px;">🎬</div>
+          <h3 style="color:#fbbf24;">视频已生成，但浏览器无法直接播放</h3>
+          <p style="color:#8888aa;margin:8px 0 20px;">标注视频使用 MP4V 编码，需要 H.264 编码才能在浏览器中播放。<br>请下载后用本地播放器（如 VLC、Windows Media Player）打开。</p>
+          <a id="downloadVideoBtn" href="#" download class="btn btn-download" style="display:inline-block;font-size:1.1rem;padding:14px 32px;background:#4ade80;color:#000;text-decoration:none;border-radius:8px;font-weight:700;">
+            ⬇ 下载标注视频
+          </a>
+          <p style="color:#666;margin-top:12px;font-size:0.8rem;">安装 FFmpeg 后重新运行即可在浏览器中直接播放</p>
+        </div>
+      </div>
+      <div class="video-info">
+        <p>⬇ <a id="downloadVideo" href="#" download>下载标注视频</a> | 推荐使用 VLC 播放器</p>
+      </div>
+    </div>
+
+    <!-- Tab: Report -->
+    <div class="tab-content" id="tab-report">
+      <div class="report-content markdown-body" id="reportContent"></div>
+      <div class="report-download">
+        <p>⬇ <a id="downloadReport" href="#" download>下载交通报告 (.txt)</a></p>
+      </div>
+    </div>
+
+    <!-- Tab: Evaluation -->
+    <div class="tab-content" id="tab-eval">
+      <div class="eval-cards" id="evalCards"></div>
+      <iframe id="evalHtmlFrame" style="width:100%;height:600px;border:none;border-radius:8px;margin-top:16px;"></iframe>
+    </div>
+
+    <!-- Tab: Charts -->
+    <div class="tab-content" id="tab-charts">
+      <div class="charts-grid" id="chartsGrid"></div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

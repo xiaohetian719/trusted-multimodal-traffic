@@ -1,0 +1,179 @@
+﻿/* Traffic AI Platform - Dark Theme Styles */
+
+:root {
+  --bg: #0a0a14;
+  --bg-card: #12122a;
+  --bg-card-hover: #1a1a36;
+  --border: #252545;
+  --text: #e0e0f0;
+  --text-dim: #8888aa;
+  --accent: #4ade80;
+  --accent2: #60a5fa;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.app { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+/* Header */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; background: var(--bg-card); border-radius: var(--radius);
+  border: 1px solid var(--border); margin-bottom: 24px;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo h1 { font-size: 1.3rem; font-weight: 700; }
+.logo span { color: var(--accent); font-weight: 400; }
+.header-status { display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.85rem; }
+.header-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.header-status.running .dot { background: var(--warning); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+
+/* Panels */
+.panel {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.panel-header { margin-bottom: 20px; }
+.panel-header h2 { font-size: 1.15rem; margin-bottom: 4px; }
+.panel-header p { color: var(--text-dim); font-size: 0.85rem; }
+
+/* Upload Zone */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  padding: 48px 24px; text-align: center; cursor: pointer;
+  transition: all 0.2s;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--accent); background: rgba(74,222,128,0.05);
+}
+.upload-icon { color: var(--text-dim); margin-bottom: 16px; }
+.upload-text { font-size: 1rem; color: var(--text-dim); }
+.upload-btn {
+  color: var(--accent); cursor: pointer; text-decoration: underline;
+  font-weight: 600;
+}
+.upload-btn:hover { color: #6ee7a0; }
+.upload-hint { margin-top: 8px; font-size: 0.8rem; color: var(--accent); }
+
+/* Buttons */
+.btn {
+  padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer;
+  font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+}
+.btn-run {
+  background: var(--accent); color: #000;
+  margin-left: 12px;
+}
+.btn-run:hover { background: #6ee7a0; transform: translateY(-1px); }
+.btn-run:disabled { background: #555; color: #999; cursor: not-allowed; transform: none; }
+
+.run-options { margin-top: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* Progress */
+.progress-bar-wrap {
+  height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+  margin: 12px 0;
+}
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px; width: 0%; transition: width 0.3s;
+}
+.progress-pct { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+.progress-elapsed { color: var(--text-dim); font-size: 0.8rem; }
+
+/* Result Stats */
+.result-stats {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; min-width: 100px; text-align: center;
+}
+.stat-card .val { font-size: 1.4rem; font-weight: 700; color: var(--accent2); }
+.stat-card .lbl { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 4px; border-bottom: 1px solid var(--border);
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.tab {
+  padding: 10px 18px; background: none; border: none; color: var(--text-dim);
+  cursor: pointer; font-size: 0.9rem; border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Video */
+.video-container { margin-bottom: 12px; }
+.video-info a { color: var(--accent); text-decoration: none; }
+
+/* Report */
+.report-content {
+  max-height: 60vh; overflow-y: auto; padding: 20px;
+  background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border);
+  white-space: pre-wrap; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85rem; line-height: 1.7;
+}
+.report-content h2 { color: var(--accent); font-size: 1.1rem; margin: 16px 0 8px; }
+.report-content h3 { color: var(--accent2); font-size: 1rem; margin: 12px 0 6px; }
+.report-content h4 { color: var(--warning); font-size: 0.9rem; margin: 8px 0 4px; }
+.report-download { margin-top: 12px; }
+.report-download a { color: var(--accent); text-decoration: none; }
+
+/* Eval cards */
+.eval-cards {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px; margin-bottom: 16px;
+}
+.eval-card {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px; text-align: center;
+}
+.eval-card .val { font-size: 1.5rem; font-weight: 700; }
+.eval-card .lbl { font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; }
+.eval-card.score-high .val { color: var(--accent); }
+.eval-card.score-mid .val { color: var(--warning); }
+.eval-card.score-low .val { color: var(--danger); }
+
+/* Charts grid */
+.charts-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 16px;
+}
+.chart-card {
+  background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.chart-card img { width: 100%; display: block; }
+
+/* Markdown body */
+.markdown-body strong { color: var(--warning); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app { padding: 10px; }
+  .header { flex-direction: column; gap: 8px; }
+  .tabs { gap: 2px; }
+  .tab { padding: 8px 12px; font-size: 0.8rem; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .eval-cards { grid-template-columns: repeat(2, 1fr); }
+}

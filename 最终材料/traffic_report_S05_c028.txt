@@ -1,0 +1,55 @@
+## 交通场景报告
+
+### 一、场景概览
+- 监控时长: 382.4 秒（共 3825 帧）
+- 涉及车辆: 235 辆车
+
+### 二、车辆行为时序
+按时间顺序列出每辆车的运动状态、转向语义、纵向趋势。
+
+1. **car_3**: Left Turn，0.00s→12.50s，Accelerating
+2. **car_137**: Left Turn，3.70s→48.50s，Accelerating
+3. **car_249**: Right Turn，7.90s→13.40s，Cruising
+4. **car_899**: Left Turn，28.90s→45.10s，Accelerating
+5. **car_1460**: Left Turn，51.60s→78.10s，Accelerating
+6. **car_1520**: Left Turn，53.80s→60.00s，Creeping
+7. **car_1686**: Left Turn，60.80s→71.40s，Creeping
+8. **car_1702**: Left Turn，61.30s→105.70s，Accelerating
+9. **car_1979**: Left Turn，71.70s→110.70s，Accelerating
+10. **car_2056**: Left Turn，73.60s→79.90s，Stationary
+11. **car_2238**: Left Turn，79.60s→86.80s，Accelerating
+12. **car_2685**: Right Turn，96.60s→115.10s，Creeping
+13. **car_2801**: Left Turn，102.50s→137.00s，Accelerating
+14. **car_2880**: Right Turn，107.40s→116.90s，Accelerating
+15. **car_3434**: Left Turn，125.40s→168.00s，Stationary
+16. **car_3507**: Left Turn，129.80s→185.80s，Accelerating
+17. **car_3634**: Right Turn，134.10s→140.00s，Cruising
+18. **car_3891**: Left Turn，141.30s→191.90s，Accelerating
+19. **car_5658**: Left Turn，203.60s→254.10s，Accelerating
+20. **car_6109**: Right Turn，222.80s→236.70s，Accelerating
+21. **car_6548**: Right Turn，239.30s→259.00s，Stationary
+22. **car_6727**: Left Turn，244.30s→274.30s，Accelerating
+23. **car_7415**: Right Turn，262.90s→276.40s，Accelerating
+24. **car_7583**: Right Turn，268.30s→293.00s，Accelerating
+25. **car_7775**: Left Turn，276.70s→304.60s，Accelerating
+26. **car_7949**: Right Turn，283.70s→307.60s，Cruising
+27. **car_8648**: Right Turn，307.30s→321.80s，Accelerating
+28. **car_9173**: Left Turn，318.70s→351.10s，Accelerating
+29. **car_9276**: Right Turn，320.30s→336.80s，Accelerating
+30. **car_8480**: Left Turn，324.30s→332.30s，Cruising
+31. **car_9919**: Right Turn，334.90s→353.20s，Accelerating
+32. **car_9935**: Left Turn，335.30s→348.00s，Creeping
+33. **car_10431**: Left Turn，347.10s→354.60s，Creeping
+34. **car_10695**: Left Turn，355.70s→365.80s，Cruising
+35. **car_10984**: Left Turn，364.50s→373.20s，Creeping
+
+### 三、安全评估
+基于上述事实进行分析：
+
+- 在监控期间内，共有 35 辆车进行了转向操作。
+- 其中左转车辆最多（21辆），右转车辆较少（14辆）。
+- 车辆的运动状态主要为加速（76辆）、蠕行（28辆）、巡航（12辆）、减速（8辆）和静止（111辆）。
+
+从转向行为来看，左转车辆较多且多数在加速过程中完成转向。右转车辆较少但同样以加速为主。整体上，车辆的运动状态较为平稳，未发现异常情况导致的安全隐患。因此，在此监控时段内，交通运行状况良好，安全风险较低。
+
+总结：根据已知事实，本场景中各车辆的行为均符合常规驾驶模式，无明显安全隐患。

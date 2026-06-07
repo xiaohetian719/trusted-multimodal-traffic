@@ -1,0 +1,274 @@
+================================================================================
+  可信多模态交通AI系统 — 运行指南
+  传感与测试技术课程设计
+  最后更新: 2026-06-02
+================================================================================
+
+【目录】
+  一、环境要求
+  二、环境检测
+  三、模型准备
+  四、Ollama 部署
+  五、运行 Stage 1 (感知层)
+  六、运行 Stage 2 (拓扑层)
+  七、运行 Stage 3 (叙事层)
+  八、运行全流程可视化
+  九、常用问题与解决
+
+================================================================================
+  一、环境要求
+================================================================================
+
+  硬件:
+    GPU: NVIDIA RTX 4060 Laptop 8GB VRAM (最低 6GB VRAM)
+    RAM: 16GB+
+    磁盘: 50GB+ 空闲 (pickle 文件每段视频 1-8GB)
+
+  软件:
+    Windows 10/11
+    Conda (推荐 Anaconda/Miniconda)
+    Ollama (https://ollama.com/)
+
+  Conda 环境:
+    环境名: ai_lab
+    Python: 3.10.19
+    解释器路径: D:\anaconda3\envs\ai_lab\python.exe
+
+  Python 依赖:
+    ultralytics     (YOLO)
+    opencv-python   (视频读写)
+    torch           (>=2.0.0, CUDA 12.4)
+    numpy
+    scipy           (匈牙利算法, 百分位计算)
+    shapely         (几何运算)
+    requests        (Ollama API 调用)
+
+================================================================================
+  二、环境检测
+================================================================================
+
+  运行自动检测脚本:
+    conda activate ai_lab
+    cd "D:\tj\Junior\Junior2\传感与测试技术课程设计"
+    python env_check.py
+
+  检测项目:
+    - Python 版本 (≥3.9)
+    - Conda 环境 (ai_lab)
+    - PyTorch + CUDA
+    - 核心依赖包
+    - Ollama 服务 + 模型
+    - 模型权重文件
+
+================================================================================
+  三、模型准备
+================================================================================
+
+  必需的模型文件 (位于 models/ 目录):
+
+    depth_anything_v2_vits.pth (~95MB) — 深度估计 (当前使用)
+      - 可从 Depth-Anything-V2 官方仓库下载
+      - 放入 models/ 目录
+
+  备用的模型文件:
+    depth_anything_v2_vitl.pth (~1.3GB) — 深度估计 (高精度备用)
+
+  已废弃的模型文件 (不需要下载):
+    sam2_hiera_large.pt (~856MB)
+    open_clip_pytorch_model.bin (~3.7GB)
+    yolopv2.pt (~149MB)
+    clrernet_culane_dla34.pth (~60MB)
+    ganet_culane_resnet101.pth (~634MB)
+
+  外部库 (必须存在):
+    Depth-Anything-V2/ — Depth Anything v2 官方库
+    Ultralytics/       — Ultralytics YOLO 库
+
+================================================================================
+  四、Ollama 部署
+================================================================================
+
+  1. 安装 Ollama:
+     https://ollama.com/
+     下载 Windows 版本安装
+
+  2. 拉取模型:
+     ollama pull qwen2.5:7b
+
+  3. 验证:
+     ollama list
+     应该看到 qwen2.5:7b 在列表中
+
+  4. 确认服务运行:
+     浏览器访问 http://localhost:11434
+     或运行: curl http://localhost:11434/api/tags
+
+================================================================================
+  五、运行 Stage 1 (感知层)
+================================================================================
+
+  完整视频处理:
+    conda activate ai_lab
+    cd "D:\tj\Junior\Junior2\传感与测试技术课程设计"
+    python -c "
+    from perception_pipeline import TrafficPerceptionSystem
+    system = TrafficPerceptionSystem()
+    frame_dicts, fps, total = system.process_video('videos/path_to_video.avi')
+    print(f'Processed {total} frames at {fps:.1f} fps')
+    "
+
+  批处理 (使用 _batch_stage1.py):
+    python _batch_stage1.py
+    自动处理 videos/ 目录下所有未处理的视频
+
+  输出:
+    - Pickle: output/stage1_result/frame_dicts_{video}.pkl
+    - 可视化: output/stage1_result/{video}_visualization.mp4
+    - 摘要:   output/stage1_result/stage1_summary_{video}.json
+
+  注意:
+    - 默认使用 ViT-S 深度模型 (~95MB)
+    - 如需切换到 ViT-L，修改源码中的模型路径
+    - pickle 文件很大 (1-8GB)，已加入 .gitignore
+
+================================================================================
+  六、运行 Stage 2 (拓扑层)
+================================================================================
+
+  方法 1 — 读取 Stage 1 pickle 运行:
+    conda activate ai_lab
+    cd "D:\tj\Junior\Junior2\传感与测试技术课程设计"
+    python -c "
+    import pickle, json
+    from topology_engine import TrafficTopologyEngine
+
+    # 加载 Stage 1 输出
+    frame_dicts = pickle.load(open('output/stage1_result/frame_dicts_S06_c046.pkl', 'rb'))
+
+    # 运行 Stage 2
+    engine = TrafficTopologyEngine()
+    for fd in frame_dicts:
+        engine.update_frame(fd)
+
+    # Phase 1: 双池分流
+    p1_stable, p1_suspended = engine.finalize_tracks()
+    print(f'Phase 1: stable={p1_stable}, suspended={p1_suspended}')
+
+    # Phase 2: LCSS 缝合
+    stitch_result = engine.cascade_stitch_tracks()
+    print(f'Phase 2: stitched={stitch_result[\"stitched\"]}')
+
+    # Phase 3: 轨迹精炼
+    refine_result = engine.refine_tracks()
+    print(f'Phase 3: tracks={refine_result[\"tracks_processed\"]}')
+
+    # Phase 4: M2 语义
+    m2_result = engine.finalize_m2_semantics()
+    print(f'Phase 4: epsilon={m2_result[\"epsilon_deg\"]:.1f}°')
+
+    # 生成 ST-Graph JSON
+    st_graph = engine.generate_st_graph()
+    json.dump(st_graph, open('st_graph_output.json', 'w'), ensure_ascii=False, indent=2)
+    print('ST-Graph JSON saved')
+    "
+
+  方法 2 — 使用现有 pickle 快速验证:
+    # 项目中已有处理好的 pickle:
+    output/stage1_result/frame_dicts_S05_c028.pkl (~7.6GB)
+    output/stage1_result/frame_dicts_S06_c041.pkl (~2.3GB)
+    output/stage1_result/frame_dicts_S06_c043.pkl (~2.3GB)
+    output/stage1_result/frame_dicts_S06_c046.pkl (~1.8GB)
+
+  输出:
+    - st_graph_output.json (ST-Graph JSON)
+
+================================================================================
+  七、运行 Stage 3 (叙事层)
+================================================================================
+
+  方法 1 — 跑完整 Demo:
+    conda activate ai_lab
+    cd "D:\tj\Junior\Junior2\传感与测试技术课程设计"
+    python narrative_agent.py
+
+    自动执行:
+      1. 加载 st_graph_output.json
+      2. 序列化事实 → LLM 推理 → 护栏检查
+      3. 保存报告到 traffic_report.txt
+      4. 运行 3 个交互式问答演示
+
+  方法 2 — 编程调用:
+    import json
+    from narrative_agent import TrafficNarrativeSystem
+
+    st_graph = json.load(open('st_graph_output.json'))
+    agent = TrafficNarrativeSystem()
+    report = agent.generate_official_report(st_graph)
+    open('traffic_report.txt', 'w', encoding='utf-8').write(report)
+
+  方法 3 — 交互式问答:
+    agent = TrafficNarrativeSystem()
+    answer = agent.interactive_qa_session("视频中有多少辆车？", st_graph)
+    print(answer)
+
+================================================================================
+  八、运行全流程可视化
+================================================================================
+
+  运行完整 Pipeline (4段视频):
+    python _visualize_full_pipeline.py
+
+  输出: output/full_pipeline_videos/
+    - S05_c028_full_pipeline.mp4
+    - S06_c041_full_pipeline.mp4
+    - S06_c043_full_pipeline.mp4
+    - S06_c046_full_pipeline.mp4
+    - full_pipeline_summary.json
+
+  各阶段独立可视化:
+    Phase 1 分流: python _verify_phase1.py
+    Phase 2 缝合: python _visualize_stitch_video.py
+    Phase 3 精炼: python _visualize_phase3.py
+    Phase 4 M2:   python _visualize_phase4.py
+    M1 验证:      python _visualize_m1.py
+    M2 验证:      python _visualize_m2.py
+
+================================================================================
+  九、常用问题与解决
+================================================================================
+
+  Q: "CUDA out of memory"
+  A: - 降低处理视频的分辨率或采样率
+     - 确保使用 ViT-S (95MB) 而非 ViT-L (1.3GB)
+     - 关闭其他 GPU 程序
+
+  Q: "Ollama 服务不可用"
+  A: - 检查 Ollama 是否在运行: ollama list
+     - 确认已在 Ollama 中拉取模型: ollama pull qwen2.5:7b
+     - 确认端口 11434 未被占用
+
+  Q: "narrative_agent.py 报错"
+  A: - 确保 st_graph_output.json 存在于项目根目录
+     - 先运行 Stage 2 生成该文件
+
+  Q: "UnicodeEncodeError / GBK 编码错误"
+  A: - 使用 python -X utf8 或设置 PYTHONIOENCODING=utf-8
+     - 或者直接使用 python.exe 而非 python 命令
+
+  Q: "无法连接 Ollama, 请确认服务已启动"
+  A: - 启动 Ollama 桌面应用
+     - 或命令行: ollama serve
+
+================================================================================
+  配套文件索引
+================================================================================
+
+  本文档是系列文档的第七篇。完整文档列表：
+    01_项目总体方案说明.txt
+    02_Stage1_感知层设计与效果.txt
+    03_Stage2_拓扑层四阶段设计与效果.txt
+    04_Stage3_叙事层设计与效果.txt
+    05_探索与废弃方案记录.txt
+    06_Bug修复记录.txt
+    07_运行指南.txt                    ← 本文档
+    08_关键数据与可视化索引.txt
