@@ -18,18 +18,14 @@ models/
 # Video data (full dataset excluded; sample clips in videos/ are tracked)
 videos/1/
 
-# External libraries
+# User uploads (not tracked)
+web_platform/uploads/
+
+# External libraries (clone separately)
 Depth-Anything-V2/
-Ultralytics/
 
-# Backup & process files
-backup/
-tools/
-docs/
-
-# Agent config (process file)
-AGENTS.md
-.claude/
+# Virtual environment
+.venv/
 
 # Output
 output/
@@ -46,21 +42,14 @@ st_graph_output*.json
 .locks/
 
 # Archives
-*.mp4
 *.zip
 *.tar
 *.gz
 *.7z
-*.npz
 
 # Compiled extensions
 *.so
 
-# 最终材料 — keep docs/charts, exclude large video files
-最终材料/video_clips/
-
 # OS
 Thumbs.db
 .DS_Store
-最终材料/st_graph_outputs/
-补充包文件说明.txt

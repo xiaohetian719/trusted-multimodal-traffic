@@ -1,0 +1,21 @@
+{
+  "settings_version": "0.0.6",
+  "datasets_dir": "D:\\ai_project\\trusted-multimodal-traffic-system-main\\datasets",
+  "weights_dir": "weights",
+  "runs_dir": "runs",
+  "uuid": "31ef54efdcb5b310fb17d7a2805e05d6d2d98e037686445f7b58dc2598ba5fb2",
+  "sync": true,
+  "api_key": "",
+  "openai_api_key": "",
+  "clearml": true,
+  "comet": true,
+  "dvc": true,
+  "hub": true,
+  "mlflow": true,
+  "neptune": true,
+  "raytune": true,
+  "tensorboard": false,
+  "wandb": false,
+  "vscode_msg": true,
+  "openvino_msg": true
+}
